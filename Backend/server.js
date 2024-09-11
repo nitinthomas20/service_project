@@ -17,7 +17,7 @@ mongoose.connect(mongoURI, {
     useUnifiedTopology: true,
 })
     .then(() => console.log('MongoDB connected successfully'))
-    .catch(err => console.log(err));
+    .catch(err => console.error('Error connecting to MongoDB:', err));
 
 // Nodemailer Transporter (for sending emails)
 const transporter = nodemailer.createTransport({
@@ -30,47 +30,51 @@ const transporter = nodemailer.createTransport({
 
 // Define a Schema for ticket bookings
 const ticketSchema = new mongoose.Schema({
-    name: { type: String, required: true },
+    name:  { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: String, required: true },
-    ticketType: { type: String, required: true },
-    ticketQuantity: { type: Number, required: true },
-    totalPrice: { type: Number, required: true },
+    tours: [
+        {
+            id:    { type: String, required: true },
+            title: { type: String, required: true },
+            price: { type: Number, required: true },
+            
+        }
+    ],
+    
     bookingDate: { type: Date, default: Date.now },
 });
 
 // Create a model from the schema
-const Ticket = mongoose.model('Ticket', ticketSchema);
+const Ticket = mongoose.model('Tickeety', ticketSchema);
 
 // Route to handle ticket booking form submission
 app.post('/api/bookings', async (req, res) => {
-    const { name, email, phone, ticketType, ticketQuantity } = req.body;
+    const { name, email, phone, tours } = req.body;
 
-    // Calculate total price based on ticket type
-    let ticketPrice = 0;
-    if (ticketType === 'standard') {
-        ticketPrice = 10;
-    } else if (ticketType === 'vip') {
-        ticketPrice = 25;
-    } else if (ticketType === 'premium') {
-        ticketPrice = 50;
-    }
-
-    const totalPrice = ticketPrice * ticketQuantity;
+    // Calculate total price based on selected tours
+    let totalPrice = 0;
+    tours.forEach(tour => {
+        totalPrice += tour.price * tour.quantity;
+    });
 
     // Create a new ticket booking
     const newBooking = new Ticket({
         name,
         email,
         phone,
-        ticketType,
-        ticketQuantity,
+        tours,
         totalPrice,
     });
 
     // Save to database
     try {
         await newBooking.save();
+
+        // Generate the list of tours in HTML format
+        const toursListHTML = tours.map(tour => `
+            <li><strong>${tour.title}</strong> - Quantity: ${tour.quantity}, Price per Ticket: $${tour.price}, Total: $${tour.price * tour.quantity}</li>
+        `).join('');
 
         // Send Confirmation Email
         const mailOptions = {
@@ -80,28 +84,27 @@ app.post('/api/bookings', async (req, res) => {
             html: `
                 <h2>Booking Confirmation</h2>
                 <p>Dear ${name},</p>
-                <p>Thank you for booking your ticket with us. Here are your booking details:</p>
+                <p>Thank you for booking your tour(s) with us. Here are your booking details:</p>
                 <ul>
-                    <li><strong>Ticket Type:</strong> ${ticketType}</li>
-                    <li><strong>Quantity:</strong> ${ticketQuantity}</li>
-                    <li><strong>Total Price:</strong> $${totalPrice}</li>
+                    ${toursListHTML}
                 </ul>
+                
                 <p>We look forward to seeing you soon!</p>
-                <p>Best regards,<br>BookMyTicket</p>
+                <p>Best regards,<br>BookMyShow</p>
             `,
         };
 
         // Send the email
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
-                console.log(error);
+                console.error('Error sending confirmation email:', error);
                 return res.status(500).json({ error: 'Error sending confirmation email' });
             }
             console.log('Email sent: ' + info.response);
+            res.status(201).json({ message: 'Booking successfully saved and email sent!' });
         });
-
-        res.status(201).json({ message: 'Booking successfully saved!' });
     } catch (error) {
+        console.error('Error saving booking:', error);
         res.status(500).json({ error: 'Error saving booking, please try again.' });
     }
 });
