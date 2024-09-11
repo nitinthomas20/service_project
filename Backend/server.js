@@ -2,23 +2,31 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-
-
-// Load environment variables from .env file
-
+const nodemailer = require('nodemailer');
+require('dotenv').config(); // Load environment variables
 
 // Initialize Express
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-// MongoDB Connection
-mongoose.connect("mongodb+srv://nitinthomas20:8UTTsn5yWewm4QAs@ticketbooking.1jznt.mongodb.net/?retryWrites=true&w=majority&appName=ticketBooking", {
+// MongoDB Atlas Connection
+const mongoURI = process.env.MONGO_URI;
+mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
     .then(() => console.log('MongoDB connected successfully'))
     .catch(err => console.log(err));
+
+// Nodemailer Transporter (for sending emails)
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
 
 // Define a Schema for ticket bookings
 const ticketSchema = new mongoose.Schema({
@@ -63,6 +71,35 @@ app.post('/api/bookings', async (req, res) => {
     // Save to database
     try {
         await newBooking.save();
+
+        // Send Confirmation Email
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email, // recipient's email
+            subject: 'Booking Confirmation',
+            html: `
+                <h2>Booking Confirmation</h2>
+                <p>Dear ${name},</p>
+                <p>Thank you for booking your ticket with us. Here are your booking details:</p>
+                <ul>
+                    <li><strong>Ticket Type:</strong> ${ticketType}</li>
+                    <li><strong>Quantity:</strong> ${ticketQuantity}</li>
+                    <li><strong>Total Price:</strong> $${totalPrice}</li>
+                </ul>
+                <p>We look forward to seeing you soon!</p>
+                <p>Best regards,<br>BookMyTicket</p>
+            `,
+        };
+
+        // Send the email
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log(error);
+                return res.status(500).json({ error: 'Error sending confirmation email' });
+            }
+            console.log('Email sent: ' + info.response);
+        });
+
         res.status(201).json({ message: 'Booking successfully saved!' });
     } catch (error) {
         res.status(500).json({ error: 'Error saving booking, please try again.' });
