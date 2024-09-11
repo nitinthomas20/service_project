@@ -1,0 +1,132 @@
+/* src/App.css */
+.tour-card {
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 300px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.tour-card img {
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.tour-card h3 {
+  margin: 10px 0;
+}
+
+.tour-card p {
+  margin: 10px 0;
+}
+
+.tour-card a {
+  display: block;
+  margin: 10px 0;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.tour-card a:hover {
+  text-decoration: underline;
+}
+
+.tour-detail {
+  max-width: 600px;
+  margin: 20px auto;
+  text-align: center;
+}
+
+.tour-detail img {
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+/* src/App.css */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand a {
+  font-size: 24px;
+  color: #333;
+  text-decoration: none;
+}
+
+.navbar-cart {
+  position: relative;
+}
+
+.navbar-cart a {
+  color: #333;
+  text-decoration: none;
+}
+
+.cart-count {
+  background-color: #ff6347;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 8px;
+  font-size: 12px;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+}
+/* src/App.css */
+.cart-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.cart-container h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.cart-items {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.cart-item {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-total {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.confirm-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.confirm-button:hover {
+  background-color: #218838;
+}
