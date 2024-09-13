@@ -1,19 +1,23 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import EventList from './components/EventList';
-import EventDetails from './components/EventDetails';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import EventsPage from './pages/EventsPage';
+import UpcomingEventsPage from './pages/UpcomingEventsPage';
 
-function App() {
+const App = () => {
   return (
     <Router>
-      <div className="App">
+      <div>
+        <nav style={{ padding: '10px', background: '#f0f0f0' }}>
+          <Link to="/" style={{ margin: '10px' }}>Events</Link>
+          <Link to="/upcoming" style={{ margin: '10px' }}>Upcoming Events</Link>
+        </nav>
         <Routes>
-          <Route path="/events" element={<EventList />} />
-          <Route path="/events/:id" element={<EventDetails />} />
+          <Route path="/" element={<EventsPage />} />
+          <Route path="/upcoming" element={<UpcomingEventsPage />} />
         </Routes>
       </div>
     </Router>
   );
-}
+};
 
 export default App;
